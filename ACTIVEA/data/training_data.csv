@@ -1,0 +1,6 @@
+
+profile_id,target_calories,met_min,met_max,rpe_min,rpe_max,hr_min,hr_max,desired_domains
+T1,300,3,6,3,5,64,76,CV;ME
+T2,400,4,7,4,6,64,77,CV;ST;ME;FM
+T3,350,3,7,3,6,64,77,CV;FL;BA
+T4,450,5,8,5,7,70,93,CV;ST;ME

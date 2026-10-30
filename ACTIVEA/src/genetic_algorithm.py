@@ -142,3 +142,11 @@ if __name__ == "__main__":
 
     print("\nBest Fitness:", round(best_fitness, 4))
     print("Total Duration:", sum(best_solution), "minutes")
+    fitness_details = calculate_fitness(best_solution, activities, profile)
+    print("\nFitness Breakdown:")
+    for key, value in fitness_details.items():
+        print(f"{key}: {value}")
+
+
+
+    

@@ -1,0 +1,4 @@
+population_size,generations,best_fitness,total_duration
+20,50,0.99902,80
+30,50,0.9992300000000001,71
+50,50,0.9998900000000001,77

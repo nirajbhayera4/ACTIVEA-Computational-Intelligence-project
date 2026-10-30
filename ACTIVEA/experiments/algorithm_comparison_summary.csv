@@ -1,0 +1,5 @@
+dataset,algorithm,average_fitness,average_duration,average_calories
+Testing,Enhanced GA,0.9995664000000002,65.7,374.806
+Testing,PSO,0.9999591999999999,55.9,375.012
+Training,Enhanced GA,0.9997580873015874,63.35,375.1355
+Training,PSO,0.9999635317460319,61.45,375.00200000000007

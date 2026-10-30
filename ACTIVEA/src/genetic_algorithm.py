@@ -40,7 +40,8 @@ def run_genetic_algorithm(
     population_size=30,
     generations=50,
     crossover_rate=0.8,
-    mutation_rate=0.1
+    mutation_rate=0.1,
+    diversity_preservation=True
 ):
 
     # Generate initial population
@@ -121,16 +122,17 @@ def run_genetic_algorithm(
             if len(new_population) < population_size:
                 new_population.append(child2)
 
-        # 8. Diversity preservation using random immigrants
-        number_of_immigrants = max(
-            1, int(0.10 * population_size)
-        )
+        # 8. Apply random immigrants if enabled
+        if diversity_preservation:
 
-        # Replace the last individuals with new random chromosomes.
-        # Keep the elite individual at position zero.
-        for i in range(number_of_immigrants):
-            new_population[-(i + 1)] = create_random_chromosome()
+            number_of_immigrants = max(
+                1, int(0.10 * population_size)
+            )
 
+            for i in range(number_of_immigrants):
+                new_population[-(i + 1)] = create_random_chromosome()
+
+        # Move to the next generation
         population = new_population
 
     return best_solution, best_fitness, history, diversity_history

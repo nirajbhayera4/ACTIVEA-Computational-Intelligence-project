@@ -1,0 +1,5 @@
+,fitness,fitness,domain_coverage,domain_penalty,calories,duration
+,mean,std,mean,mean,mean,mean
+algorithm,,,,,,
+Improved GA,0.9997840634920635,0.00020338011353428312,1.0,0.0,375.06399999999996,62.45
+Original GA,0.9997580873015874,0.0002240410971575873,1.0,0.0,375.1355,63.35

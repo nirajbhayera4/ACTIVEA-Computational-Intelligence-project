@@ -184,6 +184,43 @@ def calculate_fitness(chromosome, activities, profile):
         "hr_score": hr_score,
         "domain_score": domain_score
     }
+def calculate_improved_fitness(
+    chromosome,
+    activities,
+    profile,
+    penalty_strength=0.10
+):
+    """
+    Improved fitness function.
+
+    Applies an additional penalty when the exercise plan
+    fails to cover the user's desired fitness domains.
+    """
+
+    # Calculate the original fitness and all its components
+    result = calculate_fitness(chromosome, activities, profile)
+
+    # Existing domain score represents domain coverage
+    domain_coverage = result["domain_score"]
+
+    # Calculate penalty for missing desired domains
+    domain_penalty = 1.0 - domain_coverage
+
+    # Apply additional preference penalty
+    improved_score = (
+        result["fitness"]
+        - penalty_strength * domain_penalty
+    )
+
+    # Keep score within the range 0 to 1
+    result["fitness"] = max(0.0, min(1.0, improved_score))
+
+    # Add details for experimental analysis
+    result["domain_coverage"] = domain_coverage
+    result["domain_penalty"] = domain_penalty
+    result["penalty_strength"] = penalty_strength
+
+    return result
 
 if __name__ == "__main__":
 

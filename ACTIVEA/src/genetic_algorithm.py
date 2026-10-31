@@ -9,7 +9,7 @@ from src.mutation import mutate
 from src.fitness import calculate_fitness
 from src.chromosome import create_random_chromosome
 from src.diversity import calculate_population_diversity
-
+from src.fitness import calculate_fitness, calculate_improved_fitness
 
 MAX_TOTAL_DURATION = 90
 
@@ -41,7 +41,8 @@ def run_genetic_algorithm(
     generations=50,
     crossover_rate=0.8,
     mutation_rate=0.1,
-    diversity_preservation=True
+    diversity_preservation=True,
+    fitness_function=calculate_fitness
 ):
 
     # Generate initial population
@@ -57,7 +58,7 @@ def run_genetic_algorithm(
 
         # 1. Evaluate fitness
         fitness_scores = [
-            calculate_fitness(chromosome, activities, profile)["fitness"]
+            fitness_function(chromosome, activities, profile)["fitness"]
             for chromosome in population
         ]
 
@@ -157,7 +158,8 @@ if __name__ == "__main__":
             activities,
             profile,
             population_size=30,
-            generations=50
+            generations=50,
+            fitness_function=calculate_improved_fitness
         )
     )
 
@@ -172,7 +174,7 @@ if __name__ == "__main__":
     print("\nBest Fitness:", round(best_fitness, 4))
     print("Total Duration:", sum(best_solution), "minutes")
 
-    fitness_details = calculate_fitness(
+    fitness_details = calculate_improved_fitness(
         best_solution, activities, profile
     )
 

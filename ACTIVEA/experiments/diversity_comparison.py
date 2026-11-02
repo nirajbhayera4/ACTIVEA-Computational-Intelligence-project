@@ -4,9 +4,10 @@ import pandas as pd
 
 from src.dataset import load_profiles
 from src.genetic_algorithm import run_genetic_algorithm
+from experiments.config import load_activities
 
-# Load activities and training profiles
-activities = pd.read_csv("data/activities.csv")
+# Load shared configuration
+activities = load_activities()
 profiles = load_profiles("data/training_data.csv")
 
 results = []

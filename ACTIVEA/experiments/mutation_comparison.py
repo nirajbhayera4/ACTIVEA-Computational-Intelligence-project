@@ -1,16 +1,17 @@
+
 import random
 import pandas as pd
 
 from src.dataset import load_profiles
-
 from src.genetic_algorithm import run_genetic_algorithm
 from src.genetic_algorithm_adaptive import run_adaptive_genetic_algorithm
+from experiments.config import load_activities
 
 
 def run_comparison():
-    
 
-    activities = pd.read_csv("data/activities.csv")
+    # Load shared configuration
+    activities = load_activities()
     profiles = load_profiles("data/training_data.csv")
 
     seeds = [10, 20, 30, 40, 50]
@@ -41,7 +42,7 @@ def run_comparison():
                 "final_diversity": diversity[-1]
             })
 
-            # Modified GA
+            # Modified GA with Two-Scale Mutation
             random.seed(seed)
 
             best, fitness, history, diversity = run_adaptive_genetic_algorithm(
@@ -62,6 +63,7 @@ def run_comparison():
                 "final_diversity": diversity[-1]
             })
 
+    # Save detailed results
     df = pd.DataFrame(results)
 
     df.to_csv(
@@ -69,6 +71,7 @@ def run_comparison():
         index=False
     )
 
+    # Calculate summary
     summary = df.groupby("algorithm").agg({
         "fitness": ["mean", "std"],
         "final_diversity": "mean"
@@ -78,6 +81,8 @@ def run_comparison():
     print(summary)
 
     summary.to_csv("experiments/mutation_comparison_summary.csv")
+
+    print("\nMutation comparison completed successfully!")
 
 
 if __name__ == "__main__":

@@ -3,16 +3,11 @@ import random
 import pandas as pd
 
 from src.genetic_algorithm import run_genetic_algorithm
+from experiments.config import load_activities, load_default_profile
 
-activities = pd.read_csv("data/activities.csv")
-
-profile = {
-    "target_calories": 400,
-    "met_range": (4, 7),
-    "rpe_range": (4, 6),
-    "hr_range": (64, 77),
-    "desired_domains": ["CV", "ST", "ME", "FM"]
-}
+# Load shared configuration
+activities = load_activities()
+profile = load_default_profile()
 
 crossover_rates = [0.50, 0.60, 0.80, 0.90]
 results = []
@@ -20,7 +15,7 @@ results = []
 for rate in crossover_rates:
     random.seed(42)
 
-    best_solution, best_fitness, history = run_genetic_algorithm(
+    best_solution, best_fitness, history, diversity_history = run_genetic_algorithm(
         activities,
         profile,
         population_size=50,

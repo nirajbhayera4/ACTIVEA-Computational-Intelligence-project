@@ -3,23 +3,20 @@ import random
 import pandas as pd
 
 from src.genetic_algorithm import run_genetic_algorithm
+from experiments.config import load_activities, load_default_profile
 
 random.seed(42)
 
-activities = pd.read_csv("data/activities.csv")
-
-profile = {
-    "target_calories": 400,
-    "met_range": (4, 7),
-    "rpe_range": (4, 6),
-    "hr_range": (64, 77),
-    "desired_domains": ["CV", "ST", "ME", "FM"]
-}
+# Load shared configuration
+activities = load_activities()
+profile = load_default_profile()
 
 results = []
 
+# Test different population sizes
 for population_size in [20, 30, 50]:
-    best_solution, best_fitness, history = run_genetic_algorithm(
+
+    best_solution, best_fitness, history, diversity_history = run_genetic_algorithm(
         activities,
         profile,
         population_size=population_size,
@@ -33,8 +30,10 @@ for population_size in [20, 30, 50]:
         "total_duration": sum(best_solution)
     })
 
+# Convert results into a DataFrame
 df = pd.DataFrame(results)
 
+# Save results
 df.to_csv("experiments/experiment_results.csv", index=False)
 
 print("\nExperiment Results:")

@@ -1,21 +1,15 @@
 
 import random
-import pandas as pd
 import matplotlib.pyplot as plt
 
 from src.genetic_algorithm import run_genetic_algorithm
+from experiments.config import load_activities, load_default_profile
 
 random.seed(42)
 
-activities = pd.read_csv("data/activities.csv")
-
-profile = {
-    "target_calories": 400,
-    "met_range": (4, 7),
-    "rpe_range": (4, 6),
-    "hr_range": (64, 77),
-    "desired_domains": ["CV", "ST", "ME", "FM"]
-}
+# Load shared configuration
+activities = load_activities()
+profile = load_default_profile()
 
 best_solution, best_fitness, fitness_history, diversity_history = (
     run_genetic_algorithm(
@@ -33,7 +27,7 @@ fig, axes = plt.subplots(2, 1, figsize=(10, 8))
 
 # Fitness graph
 axes[0].plot(
-    range(1, 51),
+    range(1, len(fitness_history) + 1),
     fitness_history,
     marker="o",
     markersize=3
@@ -45,7 +39,7 @@ axes[0].grid(True)
 
 # Diversity graph
 axes[1].plot(
-    range(1, 51),
+    range(1, len(diversity_history) + 1),
     diversity_history,
     marker="o",
     markersize=3

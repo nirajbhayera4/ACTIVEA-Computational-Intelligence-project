@@ -9,12 +9,14 @@ from src.fitness import (
 )
 from experiments.config import load_activities
 
-# Load shared activities
+
+# Load activities and training profiles
 activities = load_activities()
 profiles = pd.read_csv("data/training_data.csv")
 
 SEEDS = [10, 20, 30, 40, 50]
 results = []
+
 
 for _, row in profiles.iterrows():
 
@@ -23,7 +25,10 @@ for _, row in profiles.iterrows():
         "met_range": (row["met_min"], row["met_max"]),
         "rpe_range": (row["rpe_min"], row["rpe_max"]),
         "hr_range": (row["hr_min"], row["hr_max"]),
-        "desired_domains": str(row["desired_domains"]).split(";")
+        "desired_domains": [
+            domain.strip()
+            for domain in str(row["desired_domains"]).split(";")
+        ]
     }
 
     for seed in SEEDS:
@@ -43,20 +48,41 @@ for _, row in profiles.iterrows():
                 fitness_function=fitness_function
             )
 
-            details = fitness_function(best, activities, profile)
+            # Evaluate the selected chromosome
+            details = fitness_function(
+                best, activities, profile
+            )
+
+            # Calculate preference metrics consistently
+            # for both original and improved algorithms
+            preference_details = calculate_improved_fitness(
+                best, activities, profile
+            )
 
             results.append({
                 "profile": row["profile_id"],
                 "seed": seed,
                 "algorithm": name,
                 "fitness": fitness,
-                "domain_coverage": details["domain_score"],
-                "domain_penalty": details.get("domain_penalty", 0),
+                "domain_coverage": preference_details["domain_coverage"],
+                "missing_domain_penalty": preference_details[
+                    "domain_penalty"
+                ],
+                "unsuitable_activity_penalty": preference_details[
+                    "unsuitable_activity_penalty"
+                ],
+                "combined_penalty": preference_details[
+                    "combined_penalty"
+                ],
+                "unsuitable_duration": preference_details[
+                    "unsuitable_duration"
+                ],
                 "calories": details["calories"],
                 "duration": sum(best)
             })
 
-# Save detailed results
+
+# Save detailed experimental results
 df = pd.DataFrame(results)
 
 df.to_csv(
@@ -64,18 +90,24 @@ df.to_csv(
     index=False
 )
 
+
 # Calculate summary statistics
 summary = df.groupby("algorithm").agg({
     "fitness": ["mean", "std"],
     "domain_coverage": "mean",
-    "domain_penalty": "mean",
+    "missing_domain_penalty": "mean",
+    "unsuitable_activity_penalty": "mean",
+    "combined_penalty": "mean",
     "calories": "mean",
     "duration": "mean"
 })
 
+
 print("\nTASK 8: FITNESS FUNCTION COMPARISON")
 print(summary)
 
+
+# Save summary results
 summary.to_csv(
     "experiments/improved_fitness_summary.csv"
 )

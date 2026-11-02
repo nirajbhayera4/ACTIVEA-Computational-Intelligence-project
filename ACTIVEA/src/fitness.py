@@ -191,34 +191,72 @@ def calculate_improved_fitness(
     penalty_strength=0.10
 ):
     """
-    Improved fitness function.
+    Enhanced fitness function.
 
-    Applies an additional penalty when the exercise plan
-    fails to cover the user's desired fitness domains.
+    Penalises:
+    1. Missing preferred fitness domains.
+    2. Activities that do not match any preferred domain.
     """
 
-    # Calculate the original fitness and all its components
+    # Calculate original fitness
     result = calculate_fitness(chromosome, activities, profile)
 
-    # Existing domain score represents domain coverage
-    domain_coverage = result["domain_score"]
+    desired_domains = set(profile["desired_domains"])
 
-    # Calculate penalty for missing desired domains
-    domain_penalty = 1.0 - domain_coverage
+    total_duration = 0
+    unsuitable_duration = 0
 
-    # Apply additional preference penalty
+    # Check every selected activity
+    for i, duration in enumerate(chromosome):
+
+        if duration <= 0:
+            continue
+
+        activity_domains = set(
+            str(activities.iloc[i]["fitness_domains"])
+            .split(";")
+        )
+
+        activity_domains = {
+            domain.strip() for domain in activity_domains
+        }
+
+        total_duration += duration
+
+        # Activity is unsuitable if it matches no preferred domain
+        if not activity_domains.intersection(desired_domains):
+            unsuitable_duration += duration
+
+    # Calculate unsuitable activity penalty
+    if total_duration > 0:
+        unsuitable_penalty = unsuitable_duration / total_duration
+    else:
+        unsuitable_penalty = 0.0
+
+    # Calculate missing preferred domain penalty
+    missing_domain_penalty = 1.0 - result["domain_score"]
+
+    # Combine both penalties
+    combined_penalty = (
+        missing_domain_penalty + unsuitable_penalty
+    ) / 2
+
+    # Apply penalty to original fitness
     improved_score = (
         result["fitness"]
-        - penalty_strength * domain_penalty
+        - penalty_strength * combined_penalty
     )
 
-    # Keep score within the range 0 to 1
     result["fitness"] = max(0.0, min(1.0, improved_score))
 
-    # Add details for experimental analysis
-    result["domain_coverage"] = domain_coverage
-    result["domain_penalty"] = domain_penalty
+    # Store additional information for experiments
+    result["domain_coverage"] = result["domain_score"]
+    result["missing_domain_penalty"] = missing_domain_penalty
+    result["unsuitable_activity_penalty"] = unsuitable_penalty
+    result["unsuitable_duration"] = unsuitable_duration
+    result["combined_penalty"] = combined_penalty
     result["penalty_strength"] = penalty_strength
+    result["domain_penalty"] = missing_domain_penalty
 
     return result
 
@@ -226,23 +264,33 @@ if __name__ == "__main__":
 
     activities = pd.read_csv("data/activities.csv")
 
-    chromosome = [20, 10, 0, 0, 0, 0, 0]
-
     profile = {
         "target_calories": 400,
         "met_range": (4, 7),
         "rpe_range": (4, 6),
         "hr_range": (64, 77),
-        "desired_domains": ["CV", "ST", "ME", "FM"]
+        "desired_domains": ["CV", "FM"]
     }
 
-    result = calculate_fitness(
-        chromosome,
-        activities,
-        profile
+    # Jogging supports CV and FM.
+    # Yoga does not support either CV or FM.
+    jogging_index = activities[
+        activities["activity"] == "Jogging"
+    ].index[0]
+
+    yoga_index = activities[
+        activities["activity"] == "Yoga"
+    ].index[0]
+
+    chromosome = [0] * len(activities)
+    chromosome[jogging_index] = 20
+    chromosome[yoga_index] = 10
+
+    result = calculate_improved_fitness(
+        chromosome, activities, profile
     )
 
-    print("\nExercise Evaluation")
+    print("\nTASK 8: UNSUITABLE ACTIVITY PENALTY TEST")
 
     for key, value in result.items():
-        print(f"{key}: {value:.2f}")
+        print(f"{key}: {value}")

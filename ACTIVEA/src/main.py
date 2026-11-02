@@ -1,10 +1,4 @@
 
-"""
-Main entry point for ACTIVEA.
-
-Run from the project root:
-    python -m src.main
-"""
 
 import random
 from pathlib import Path

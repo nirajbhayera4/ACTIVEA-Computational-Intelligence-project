@@ -6,9 +6,10 @@ from src.genetic_algorithm import run_genetic_algorithm
 from src.particle_swarm import run_particle_swarm
 from src.dataset import load_profiles
 from src.fitness import calculate_calories
+from experiments.config import load_activities
 
-# Load the same activities for both algorithms
-activities = pd.read_csv("data/activities.csv")
+# Load shared activities
+activities = load_activities()
 
 training_profiles = load_profiles("data/training_data.csv")
 testing_profiles = load_profiles("data/testing_data.csv")
@@ -73,7 +74,11 @@ for dataset_name, profiles in datasets:
 
 # Save individual experiment results
 df = pd.DataFrame(results)
-df.to_csv("experiments/algorithm_comparison_results.csv", index=False)
+
+df.to_csv(
+    "experiments/algorithm_comparison_results.csv",
+    index=False
+)
 
 # Calculate average results for each algorithm and dataset
 summary = df.groupby(

@@ -1,3 +1,4 @@
+
 import random
 import pandas as pd
 
@@ -6,8 +7,10 @@ from src.fitness import (
     calculate_fitness,
     calculate_improved_fitness
 )
+from experiments.config import load_activities
 
-activities = pd.read_csv("data/activities.csv")
+# Load shared activities
+activities = load_activities()
 profiles = pd.read_csv("data/training_data.csv")
 
 SEEDS = [10, 20, 30, 40, 50]
@@ -32,14 +35,12 @@ for _, row in profiles.iterrows():
 
             random.seed(seed)
 
-            best, fitness, history, diversity = (
-                run_genetic_algorithm(
-                    activities,
-                    profile,
-                    population_size=50,
-                    generations=50,
-                    fitness_function=fitness_function
-                )
+            best, fitness, history, diversity = run_genetic_algorithm(
+                activities,
+                profile,
+                population_size=50,
+                generations=50,
+                fitness_function=fitness_function
             )
 
             details = fitness_function(best, activities, profile)
@@ -55,6 +56,7 @@ for _, row in profiles.iterrows():
                 "duration": sum(best)
             })
 
+# Save detailed results
 df = pd.DataFrame(results)
 
 df.to_csv(
@@ -62,6 +64,7 @@ df.to_csv(
     index=False
 )
 
+# Calculate summary statistics
 summary = df.groupby("algorithm").agg({
     "fitness": ["mean", "std"],
     "domain_coverage": "mean",
@@ -77,4 +80,4 @@ summary.to_csv(
     "experiments/improved_fitness_summary.csv"
 )
 
-print("\nResults saved successfully.")
+print("\nResults saved successfully!")

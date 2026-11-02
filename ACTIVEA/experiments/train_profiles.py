@@ -2,12 +2,14 @@
 import random
 import pandas as pd
 
+from experiments.config import load_activities
 from src.dataset import load_profiles
 from src.genetic_algorithm import run_genetic_algorithm
 from src.fitness import calculate_fitness
 
+
 # Load activity catalogue and training profiles
-activities = pd.read_csv("data/activities.csv")
+activities = load_activities()
 training_profiles = load_profiles("data/training_data.csv")
 
 results = []
@@ -55,8 +57,10 @@ for profile in training_profiles:
     print("Calories:", round(details["calories"], 2))
     print("Session:", best_solution)
 
+
 # Save all results
 results_df = pd.DataFrame(results)
+
 results_df.to_csv(
     "experiments/training_results.csv",
     index=False

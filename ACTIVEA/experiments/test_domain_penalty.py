@@ -1,8 +1,12 @@
-import pandas as pd
+
+from experiments.config import load_activities
 from src.fitness import calculate_fitness, calculate_improved_fitness
 
-activities = pd.read_csv("data/activities.csv")
 
+# Load activity catalogue
+activities = load_activities()
+
+# Define a sample training profile
 profile = {
     "target_calories": 400,
     "met_range": (4, 7),
@@ -11,12 +15,19 @@ profile = {
     "desired_domains": ["CV", "ST", "ME", "FM"]
 }
 
-# Jogging and cycling do not cover the ST domain
+# Sample chromosome with incomplete domain coverage
 chromosome = [10, 0, 10, 0, 0, 0, 0]
 
+# Calculate fitness using both methods
 original = calculate_fitness(chromosome, activities, profile)
-improved = calculate_improved_fitness(chromosome, activities, profile)
 
+improved = calculate_improved_fitness(
+    chromosome,
+    activities,
+    profile
+)
+
+# Display comparison
 print("Original fitness:", original["fitness"])
 print("Improved fitness:", improved["fitness"])
 print("Domain coverage:", improved["domain_coverage"])

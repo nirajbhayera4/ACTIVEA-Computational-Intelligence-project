@@ -1,12 +1,15 @@
+
 import random
 import pandas as pd
 
+from experiments.config import load_activities
 from src.dataset import load_profiles
 from src.genetic_algorithm import run_genetic_algorithm
 from src.fitness import calculate_fitness
 
+
 # Load activities and testing profiles
-activities = pd.read_csv("data/activities.csv")
+activities = load_activities()
 testing_profiles = load_profiles("data/testing_data.csv")
 
 results = []
@@ -52,6 +55,7 @@ for profile in testing_profiles:
     print("Total duration:", sum(best_solution), "minutes")
     print("Calories:", round(details["calories"], 2))
     print("Session:", best_solution)
+
 
 # Save testing results
 results_df = pd.DataFrame(results)

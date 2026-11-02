@@ -1,10 +1,4 @@
 
-"""
-Unit tests for the ACTIVEA fitness functions.
-
-Run from the project root:
-    python -m pytest tests/test_fitness.py -v
-"""
 
 import pandas as pd
 import pytest

@@ -324,7 +324,7 @@ The enhanced and original fitness functions were compared using the training dat
 
 | Parameter | Value |
 |---|---:|
-| Population size | 50 |
+| Population size | 30 (the default used by `improved_fitness_comparison.py`) |
 | Generations | 50 |
 | Crossover rate | 0.80 |
 | Mutation rate | 0.10 |
@@ -448,7 +448,7 @@ However, the enhanced GA achieved a lower mean fitness score and a higher standa
 
 This is an important observation: reducing unsuitable activities does not necessarily produce a higher overall fitness score when the original fitness components and penalty mechanism are considered together.
 
-The enhanced GA also achieved calorie expenditure closer to the 500-calorie target.
+The enhanced GA's mean achieved calories (499.996) were closer to the target than the original GA's mean (499.616). However, the enhanced GA had a higher average run-wise absolute calorie error (0.640 versus 0.476 calories; see Section 11.1), reflecting greater variation across its five runs.
 
 ---
 
@@ -461,7 +461,7 @@ The experiments demonstrate different behaviours across the training and testing
 | Domain coverage | Full | Full | Full |
 | Preference penalty | Zero | Zero | Reduced by enhanced GA |
 | Enhanced fitness | Slightly higher | Slightly higher | Lower |
-| Calorie target adherence | Similar | Very close | Improved |
+| Calorie target adherence | Similar | Very close | Enhanced mean closer; original has lower run-wise absolute error |
 | Enhanced GA consistency | Slightly better | Slightly better | More variable |
 
 The most important finding is that the enhanced fitness function has a measurable effect on activity selection.
@@ -498,6 +498,107 @@ The tests covered:
 8. Zero-duration chromosome.
 9. Application of the improved fitness penalty.
 10. Penalisation of missing desired domains.
+
+---
+
+## 11. Expanded Algorithm Comparison
+
+This section compares the original fitness function with the enhanced (also named "Improved GA" in the result files) fitness function. It uses the recorded repeated-run CSV files; no genetic algorithm experiments were rerun. Fitness standard deviations below are sample standard deviations across runs, and best fitness is the highest recorded run value. Calorie error is the mean absolute difference between each run's achieved calories and its profile target, not the difference between the two group means.
+
+The training comparison contains four profiles and five seeds per profile. Its script uses the GA defaults: population size 30, 50 generations, crossover rate 0.8, and mutation rate 0.1. The testing comparison contains two held-out profiles and five seeds per profile, with population size 50 and the same generation and rate settings. The training and testing results are therefore reported separately and are not treated as identical configurations.
+
+### 11.1 Original and Enhanced GA Performance
+
+| Split / profile | Fitness function | Mean fitness (SD) | Best observed fitness | Target / achieved calories | Mean absolute calorie difference | Mean duration (minutes) |
+|---|---|---:|---:|---:|---:|---:|
+| Training (T1-T4) | Original GA | 0.999758 (0.000224) | 0.999991 | 375.000 / 375.136 | 0.223 | 63.35 |
+| Training (T1-T4) | Enhanced GA | 0.999796 (0.000198) | 0.999991 | 375.000 / 375.086 | 0.188 | 62.65 |
+| Testing (E1) | Original GA | 0.999514 (0.000556) | 0.999968 | 250.000 / 249.996 | 0.304 | 63.40 |
+| Testing (E1) | Enhanced GA | 0.999616 (0.000503) | 0.999968 | 250.000 / 250.196 | 0.240 | 62.00 |
+| Testing (E2) | Original GA | 0.999619 (0.000469) | 0.999984 | 500.000 / 499.616 | 0.476 | 68.00 |
+| Testing (E2) | Enhanced GA | 0.998770 (0.001176) | 0.999888 | 500.000 / 499.996 | 0.640 | 67.40 |
+
+The reported domain coverage and preference penalties are:
+
+| Split / profile | Fitness function | Desired-domain coverage | Missing-domain penalty | Unsuitable-activity penalty | Combined penalty |
+|---|---|---:|---:|---:|---:|
+| Training (T1-T4) | Original GA | 1.000 | 0.000000 | 0.000000 | 0.000000 |
+| Training (T1-T4) | Enhanced GA | 1.000 | 0.000000 | 0.000000 | 0.000000 |
+| Testing (E1) | Original GA | 1.000 | 0.000000 | 0.000000 | 0.000000 |
+| Testing (E1) | Enhanced GA | 1.000 | 0.000000 | 0.000000 | 0.000000 |
+| Testing (E2) | Original GA | 1.000 | 0.000000 | 0.074419 | 0.037209 |
+| Testing (E2) | Enhanced GA | 1.000 | 0.000000 | 0.014370 | 0.007185 |
+
+![Mean fitness comparison for training and held-out testing profiles](experiments/ga_fitness_function_comparison.png)
+
+![Mean absolute calorie target difference for training and testing profiles](experiments/ga_calorie_adherence_comparison.png)
+
+![Preference penalty comparison for the held-out testing profiles](experiments/ga_preference_penalty_comparison.png)
+
+### 11.2 Interpretation
+
+- On the training profiles, the enhanced function has a slightly higher mean fitness (0.999796 versus 0.999758), lower observed standard deviation, and lower mean absolute calorie error (0.188 versus 0.223 calories). Both variants reached the same best observed fitness and full domain coverage; all recorded preference penalties were zero.
+- On E1, the enhanced function has a slightly higher mean fitness and lower mean absolute calorie error. Both variants achieved full coverage with no recorded penalties.
+- On E2, the original function has higher mean and best fitness, lower fitness variation, and lower mean absolute calorie error. The enhanced function has substantially lower unsuitable-activity and combined penalties: the unsuitable-activity penalty falls from 0.074419 to 0.014370. Thus the preference penalty improves the recorded activity-suitability metric on E2, but the enhanced run does not lead on every overall performance metric.
+- Every recorded training and testing run has full desired-domain coverage and zero missing-domain penalty. Those metrics do not distinguish the two fitness functions in these datasets. The measurable preference-penalty difference is confined to unsuitable activity in E2.
+
+The scores are close to the upper bound and the testing sample contains only two profiles with five seeds each. These results are descriptive; they do not establish statistical significance or universal superiority of either fitness function.
+
+### 11.3 Mutation- and Crossover-Rate Experiments
+
+The existing rate sweeps report one run per setting with seed 42, population size 50, and 50 generations. The values below are the recorded best fitness and total duration; they identify the best observed setting in these sweeps, not a statistically established optimum.
+
+| Mutation rate | Best fitness | Duration (minutes) |
+|---:|---:|---:|
+| 0.05 | 0.999890 | 60 |
+| 0.10 | 0.999890 | 67 |
+| 0.20 | 0.999900 | 64 |
+| 0.30 | 0.999610 | 73 |
+
+| Crossover rate | Best fitness | Duration (minutes) |
+|---:|---:|---:|
+| 0.50 | 0.999710 | 76 |
+| 0.60 | 0.999840 | 80 |
+| 0.80 | 0.999890 | 67 |
+| 0.90 | 0.999340 | 71 |
+
+Among the tested mutation rates, 0.20 produced the highest recorded fitness (0.999900). Among the tested crossover rates, 0.80 produced the highest recorded fitness (0.999890) and the shortest duration in that sweep. The difference between mutation rates 0.05, 0.10, and 0.20 is small; repeated trials would be needed before changing defaults on that basis.
+
+![Recorded best fitness across mutation-rate and crossover-rate sweeps](experiments/parameter_rate_sweeps_comparison.png)
+
+The separate repeated mutation-operator comparison used 20 training runs per operator and reports:
+
+| Mutation operator | Mean fitness | Fitness SD | Mean final diversity |
+|---|---:|---:|---:|
+| Original Mutation | 0.999758 | 0.000224 | 0.151999 |
+| Two-Scale Mutation | 0.999881 | 0.000097 | 0.065474 |
+
+Two-Scale Mutation has the higher mean fitness and lower fitness variation in these runs, alongside lower final diversity. This operator comparison is distinct from the single-run mutation-rate sweep and does not show that the lower diversity is beneficial in other settings.
+
+### 11.4 Data Scope and Limitations
+
+- The enhanced-versus-original comparisons use `improved_fitness_results.csv` and `testing_fitness_comparison_results.csv`. Profile target calories come from the corresponding training and testing profile CSVs; mean absolute calorie differences are calculated from each recorded run.
+- Rate tables and their graph use the existing `mutation_results.csv` and `crossover_results.csv`. The mutation-operator table uses the existing repeated-run summary and raw results.
+- The separate `algorithm_comparison_results.csv` labels its GA arm "Enhanced GA", but `compare_algorithms.py` does not pass the enhanced fitness function and `run_genetic_algorithm` defaults to the original fitness function. That file is therefore not presented as evidence for an Enhanced-GA-versus-PSO comparison.
+- The existing results do not record physiology-component comparisons (MET, RPE, and heart-rate components) for every repeated original-versus-enhanced run, so those components cannot be compared here. The recorded calorie, duration, coverage, and penalty metrics are included above.
+
+### 11.5 Conclusion
+
+The enhanced fitness function gives a small training-set improvement and reduces unsuitable-activity penalties on held-out profile E2, but it does not consistently improve mean fitness, fitness stability, or calorie adherence across testing profiles. The rate sweeps favor mutation rate 0.20 and crossover rate 0.80 only among the settings and single runs recorded. Overall, the experiments support a profile-dependent benefit for the added preference penalty, not a claim that the enhanced GA is universally superior.
+
+### 11.6 Reproducing the Comparison Graphs
+
+From the `ACTIVEA` directory, regenerate the figures without rerunning the optimization experiments:
+
+```powershell
+..\.venv\Scripts\python.exe experiments\plot_fitness_function_comparison.py
+```
+
+The script reads the existing GA comparison and rate-sweep CSVs and writes the four PNG files embedded above. To rerun the documented tests, use:
+
+```powershell
+..\.venv\Scripts\python.exe -m pytest -v
+```
 
 The controlled unsuitable-activity experiment additionally verified that unsuitable activities produce a non-zero penalty even when domain coverage is complete.
 
